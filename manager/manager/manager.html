@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>KeyPass 管理中心</title>
+  <link rel="icon" href="../assets/icon16.png">
+  <link rel="stylesheet" href="./manager.css">
+</head>
+<body>
+  <div id="auth-view" class="view">
+    <section class="auth-card">
+      <div class="brand">
+        <img src="../assets/icon48.png" alt="" width="48" height="48">
+        <h1>KeyPass</h1>
+      </div>
+      <form id="auth-form" autocomplete="off">
+        <div class="form-group">
+          <label id="password-label" for="master-password">主密码</label>
+          <input id="master-password" type="password" required minlength="8" autofocus>
+        </div>
+        <div id="confirm-wrap" class="form-group hidden">
+          <label for="master-confirm">确认主密码</label>
+          <input id="master-confirm" type="password" minlength="8">
+        </div>
+        <p id="auth-error" class="error-text hidden"></p>
+        <button id="auth-submit" type="submit" class="btn-primary">解锁</button>
+        <button id="auth-import-btn" type="button" class="btn-secondary" style="margin-top: 10px; width: 100%;">导入既有备份文件</button>
+      </form>
+    </section>
+  </div>
+
+  <div id="app-view" class="view hidden">
+    <header class="topbar">
+      <div class="brand compact">
+        <img src="../assets/icon16.png" alt="" width="26" height="26">
+        <strong>KeyPass</strong>
+      </div>
+      <div class="search-box">
+        <input id="search-input" type="search" placeholder="搜索网站名、域名、账号或账号名称">
+      </div>
+      <div class="top-actions">
+        <button id="add-site-btn" type="button" class="btn-primary">新增网站</button>
+        <button id="import-btn" type="button" class="btn-secondary">导入文件</button>
+        <button id="export-btn" type="button" class="btn-secondary">导出备份</button>
+        <button id="password-btn" type="button" class="btn-ghost">修改主密码</button>
+        <button id="lock-btn" type="button" class="btn-ghost">锁定</button>
+      </div>
+    </header>
+
+    <main class="workspace">
+      <aside class="list-pane">
+        <div id="site-list" class="site-list"></div>
+        <div id="list-empty" class="empty-hint hidden">还没有保存任何网站，点击上方“新增网站”开始登记。</div>
+      </aside>
+
+      <section class="detail-pane">
+        <div id="site-panel" class="site-panel hidden">
+          <header class="site-header">
+            <div class="site-header-info">
+              <h2 id="site-title"></h2>
+              <a id="site-link" class="site-link" target="_blank" rel="noopener noreferrer"></a>
+            </div>
+            <div class="site-actions">
+              <button id="open-site-btn" type="button" class="btn-secondary">打开网站</button>
+              <button id="add-account-btn" type="button" class="btn-primary">添加账号</button>
+              <button id="edit-site-btn" type="button" class="btn-ghost">编辑网站</button>
+              <button id="delete-site-btn" type="button" class="btn-danger">删除网站</button>
+            </div>
+          </header>
+
+          <div class="table-wrap">
+            <table class="account-table">
+              <thead>
+                <tr>
+                  <th>账号名称</th>
+                  <th>账号</th>
+                  <th>密码</th>
+                  <th class="ops">操作</th>
+                </tr>
+              </thead>
+              <tbody id="account-table-body"></tbody>
+            </table>
+          </div>
+          <p id="account-empty" class="empty-hint hidden">该网站尚未添加账号，点击上方“添加账号”。</p>
+        </div>
+
+        <div id="detail-empty" class="empty-detail">
+          <h2>选择左侧网站查看账号</h2>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- 网站弹窗 -->
+  <div id="site-modal" class="modal hidden">
+    <form id="site-form" class="modal-card" autocomplete="off">
+      <h3 id="site-modal-title">新增网站</h3>
+      <div class="form-group">
+        <label for="siteName">网站名</label>
+        <input id="siteName" maxlength="200" required placeholder="例如：GitHub">
+      </div>
+      <div class="form-group">
+        <label for="siteUrl">网站链接</label>
+        <input id="siteUrl" maxlength="2000" placeholder="https://github.com">
+      </div>
+      <div id="site-first-account" class="site-first-account">
+        <div class="form-group">
+          <label for="siteAccountName">账号名称</label>
+          <input id="siteAccountName" placeholder="例如：主工作账号（选填）">
+        </div>
+        <div class="form-group">
+          <label for="siteUsername">账号 / 邮箱</label>
+          <input id="siteUsername" placeholder="用户名或登录邮箱">
+        </div>
+        <div class="form-group">
+          <label for="sitePassword">密码</label>
+          <input id="sitePassword" type="password" placeholder="登录密码">
+        </div>
+      </div>
+      <p id="site-modal-error" class="error-text hidden"></p>
+      <div class="modal-actions">
+        <button type="button" class="btn-secondary modal-cancel">取消</button>
+        <button type="submit" class="btn-primary">保存</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- 账号弹窗 -->
+  <div id="account-modal" class="modal hidden">
+    <form id="account-form" class="modal-card" autocomplete="off">
+      <h3 id="account-modal-title">添加账号</h3>
+      <div class="form-group">
+        <label for="accAccountName">账号名称</label>
+        <input id="accAccountName" maxlength="200" placeholder="例如：私人账号、管理账号">
+      </div>
+      <div class="form-group">
+        <label for="accUsername">账号 / 用户名</label>
+        <input id="accUsername" maxlength="300" required placeholder="登录用户名、手机号或邮箱">
+      </div>
+      <div class="form-group">
+        <label for="accPassword">密码</label>
+        <div class="input-with-button">
+          <input id="accPassword" maxlength="500" required>
+          <button id="generate-btn" type="button" class="btn-secondary">随机生成</button>
+        </div>
+      </div>
+      <p id="account-modal-error" class="error-text hidden"></p>
+      <div class="modal-actions">
+        <button type="button" class="btn-secondary modal-cancel">取消</button>
+        <button type="submit" class="btn-primary">保存</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- 修改主密码弹窗 -->
+  <div id="password-modal" class="modal hidden">
+    <form id="password-form" class="modal-card" autocomplete="off">
+      <h3>修改主密码</h3>
+      <div class="form-group">
+        <label for="pwdCurrent">当前主密码</label>
+        <input id="pwdCurrent" type="password" required>
+      </div>
+      <div class="form-group">
+        <label for="pwdNext">新主密码</label>
+        <input id="pwdNext" type="password" minlength="8" required placeholder="至少 8 位">
+      </div>
+      <div class="form-group">
+        <label for="pwdConfirm">确认新主密码</label>
+        <input id="pwdConfirm" type="password" minlength="8" required>
+      </div>
+      <p id="password-modal-error" class="error-text hidden"></p>
+      <div class="modal-actions">
+        <button type="button" class="btn-secondary modal-cancel">取消</button>
+        <button type="submit" class="btn-primary">确认修改</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- 导入弹窗 -->
+  <div id="import-modal" class="modal hidden">
+    <form id="import-form" class="modal-card" autocomplete="off">
+      <h3>导入备份文件</h3>
+      <div class="form-group">
+        <label for="importFile">选择 .kps 文件</label>
+        <input id="importFile" type="file" accept=".kps,.json" required>
+      </div>
+      <div class="form-group">
+        <label for="importPassword">备份文件的主密码</label>
+        <input id="importPassword" type="password" required placeholder="输入导出该文件时使用的主密码">
+      </div>
+      <p id="import-modal-error" class="error-text hidden"></p>
+      <div class="modal-actions">
+        <button type="button" class="btn-secondary modal-cancel">取消</button>
+        <button type="submit" class="btn-primary">校验并导入</button>
+      </div>
+    </form>
+  </div>
+
+  <div id="toast" class="toast hidden"></div>
+
+  <script src="../lib/scrypt.js"></script>
+  <script src="../lib/crypto.js"></script>
+  <script src="../lib/domain.js"></script>
+  <script src="./manager.js"></script>
+</body>
+</html>
