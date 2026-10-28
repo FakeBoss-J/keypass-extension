@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>KeyPass</title>
+  <link rel="stylesheet" href="./popup.css">
+</head>
+<body>
+  <div class="popup-container">
+    <header class="popup-header">
+      <div class="brand">
+        <img src="../assets/icon16.png" alt="" width="20" height="20">
+        <strong>KeyPass</strong>
+      </div>
+      <div class="header-actions">
+        <button id="open-manager-btn" type="button" class="btn-ghost" title="打开管理中心">管理中心</button>
+        <button id="lock-btn" type="button" class="btn-ghost hidden" title="锁定">锁定</button>
+      </div>
+    </header>
+
+    <!-- 未解锁视图 -->
+    <section id="locked-view" class="view">
+      <div class="auth-box">
+        <h2 id="auth-title">解锁密码库</h2>
+        <form id="auth-form" autocomplete="off">
+          <div class="form-group">
+            <label for="master-password">主密码</label>
+            <input id="master-password" type="password" required minlength="8" placeholder="输入至少 8 位主密码" autofocus>
+          </div>
+          <div id="confirm-wrap" class="form-group hidden">
+            <label for="master-confirm">确认主密码</label>
+            <input id="master-confirm" type="password" minlength="8" placeholder="再次输入主密码">
+          </div>
+          <p id="auth-error" class="error-text hidden"></p>
+          <button id="auth-submit-btn" type="submit" class="btn-primary">解锁</button>
+        </form>
+      </div>
+    </section>
+
+    <!-- 已解锁主视图 -->
+    <section id="unlocked-view" class="view hidden">
+      <!-- 当前网页匹配卡片 -->
+      <div class="current-site-bar">
+        <span class="site-label">当前网页</span>
+        <span id="current-domain-badge" class="domain-badge">检测中...</span>
+      </div>
+
+      <div id="matched-section" class="matched-section">
+        <div id="matched-list" class="matched-list"></div>
+        <div id="no-match-box" class="no-match-box hidden">
+          <p class="empty-hint">当前网站尚未保存账号</p>
+          <button id="quick-add-btn" type="button" class="btn-secondary">为此网站添加账号</button>
+        </div>
+      </div>
+
+      <!-- 全局快速查找 -->
+      <div class="search-section">
+        <input id="search-input" type="search" placeholder="搜索其他网站或账号...">
+        <div id="search-results" class="search-results hidden"></div>
+      </div>
+    </section>
+
+    <div id="toast" class="toast hidden"></div>
+  </div>
+
+  <script src="../lib/scrypt.js"></script>
+  <script src="../lib/crypto.js"></script>
+  <script src="../lib/domain.js"></script>
+  <script src="./popup.js"></script>
+</body>
+</html>
